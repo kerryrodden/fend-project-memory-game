@@ -22,6 +22,10 @@ let cardsCorrect = 0;
 // The cards that the user has opened in this turn
 const cardsInTurn = [];
 
+// The number of turns taken in this game
+let turnsTaken = 0;
+updateTurnDisplay();
+
 // Display the cards on the page
 const deck = document.querySelector('.deck');
 cardIconClasses.forEach(function (cardIconClass) {
@@ -44,10 +48,13 @@ function clickEventListener(event) {
   if (!cardIsOpen(event.target) && cardsInTurn.length < 2 && cardsCorrect < cardCount) {
     openCard(event.target);
     if (cardsInTurn.length === 2) {
+      turnsTaken++;
+      updateTurnDisplay();
       if (cardsInTurn[0] === cardsInTurn[1]) {
         console.log("match");
         showMatch();
         cardsCorrect += 2;
+        // TODO: check if cardsCorrect === cardCount
         cardsInTurn.length = 0;
       } else {
         console.log("no match");
@@ -87,6 +94,11 @@ function showMatch() {
     node.classList.add('match');
     node.classList.remove('open', 'show');
   });
+};
+
+function updateTurnDisplay() {
+  const turnString = turnsTaken === 1 ? " Turn" : " Turns";
+  document.querySelector('.turns').textContent = turnsTaken + turnString;
 };
 
 // Shuffle function from http://stackoverflow.com/a/2450976

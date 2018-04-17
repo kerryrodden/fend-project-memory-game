@@ -13,6 +13,15 @@ const cardIconNames = [
 // Create list with two cards for each icon, and shuffle it
 const cardIconClasses = shuffle(cardIconNames.concat(cardIconNames));
 
+// The total number of cards
+const cardCount = cardIconClasses.length;
+
+// The number of cards that the user has matched correctly so far
+let cardsCorrect = 0;
+
+// The cards that the user has opened in this turn
+const cardsInTurn = [];
+
 // Display the cards on the page
 const deck = document.querySelector('.deck');
 cardIconClasses.forEach(function (cardIconClass) {
@@ -25,13 +34,60 @@ cardIconClasses.forEach(function (cardIconClass) {
   deck.appendChild(card);
 });
 
-// Open the card if it is clicked
+// Handle clicks and apply game logic (determine if open cards match)
 deck.addEventListener('click', clickEventListener);
 
 function clickEventListener(event) {
-  event.target.classList.toggle('open');
-  event.target.classList.toggle('show');
+  if (!event.target.classList.contains('card')) {
+    return;
+  }
+  if (!cardIsOpen(event.target) && cardsInTurn.length < 2 && cardsCorrect < cardCount) {
+    openCard(event.target);
+    if (cardsInTurn.length === 2) {
+      if (cardsInTurn[0] === cardsInTurn[1]) {
+        console.log("match");
+        showMatch();
+        cardsCorrect += 2;
+        cardsInTurn.length = 0;
+      } else {
+        console.log("no match");
+        setTimeout(closeOpenCards, 1000);
+        cardsInTurn.length = 0;
+      }
+    }
+  }
+};
+
+function openCard(cardElement) {
+  cardsInTurn.push(getCardName(cardElement));
+  displaySymbol(cardElement);
+};
+
+function cardIsOpen(cardElement) {
+  return cardElement.classList.contains('open') || cardElement.classList.contains('match');
 }
+
+function getCardName(cardElement) {
+  // TODO: try to find a more robust way to do this
+  return cardElement.firstChild.classList.item(1);
+};
+
+function displaySymbol(cardElement) {
+  cardElement.classList.add('open', 'show');
+};
+
+function closeOpenCards() {
+  document.querySelectorAll('.open').forEach(function (node) {
+    node.classList.remove('open', 'show');
+  });
+};
+
+function showMatch() {
+  document.querySelectorAll('.open').forEach(function (node) {
+    node.classList.add('match');
+    node.classList.remove('open', 'show');
+  });
+};
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {

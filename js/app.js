@@ -26,6 +26,10 @@ const cardsInTurn = [];
 let turnsTaken = 0;
 updateTurnDisplay();
 
+// The user's score for this game
+let score = 3;
+updateScoreDisplay();
+
 // Display the cards on the page
 const deck = document.querySelector('.deck');
 cardIconClasses.forEach(function (cardIconClass) {
@@ -48,8 +52,6 @@ function clickEventListener(event) {
   if (!cardIsOpen(event.target) && cardsInTurn.length < 2 && cardsCorrect < cardCount) {
     openCard(event.target);
     if (cardsInTurn.length === 2) {
-      turnsTaken++;
-      updateTurnDisplay();
       if (cardsInTurn[0] === cardsInTurn[1]) {
         console.log("match");
         showMatch();
@@ -61,6 +63,9 @@ function clickEventListener(event) {
         setTimeout(closeOpenCards, 1000);
         cardsInTurn.length = 0;
       }
+      turnsTaken++;
+      updateTurnDisplay();
+      updateScoreDisplay();
     }
   }
 };
@@ -84,21 +89,33 @@ function displaySymbol(cardElement) {
 };
 
 function closeOpenCards() {
-  document.querySelectorAll('.open').forEach(function (node) {
-    node.classList.remove('open', 'show');
+  document.querySelectorAll('.open').forEach(function (element) {
+    element.classList.remove('open', 'show');
   });
 };
 
 function showMatch() {
-  document.querySelectorAll('.open').forEach(function (node) {
-    node.classList.add('match');
-    node.classList.remove('open', 'show');
+  document.querySelectorAll('.open').forEach(function (element) {
+    element.classList.add('match');
+    element.classList.remove('open', 'show');
   });
 };
 
 function updateTurnDisplay() {
-  const turnString = turnsTaken === 1 ? " Turn" : " Turns";
+  const turnString = turnsTaken === 1 ? ' Turn' : ' Turns';
   document.querySelector('.turns').textContent = turnsTaken + turnString;
+};
+
+function updateScoreDisplay() {
+  // Maximum score of 3 stars is available if you take the smallest number of turns. After 32 turns, the score is 0.
+  score = Math.max(0, 3 - Math.floor(turnsTaken * 1.5 / cardCount));
+  console.log(turnsTaken, score);
+  // Hide stars instead of removing them, so that the spacing remains consistent.
+  document.querySelectorAll('.fa-star').forEach(function(element, index) {
+    if (index + 1 > score) {
+      element.style.visibility = 'hidden';
+    }
+  });
 };
 
 // Shuffle function from http://stackoverflow.com/a/2450976

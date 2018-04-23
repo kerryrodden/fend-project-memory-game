@@ -25,6 +25,9 @@ let turnsTaken = 0;
 // The maximum score available
 const maxScore = 3;
 
+// Start time of current game
+let startTime = new Date();
+
 initializeGame();
 
 function createNewGame() {
@@ -44,8 +47,10 @@ function createNewGame() {
   cardsCorrect = 0;
   cardsInTurn.length = 0;
   turnsTaken = 0;
+  startTime = Date.now();
   updateTurnDisplay();
   updateScoreDisplay();
+  setInterval(updateTimerDisplay, 1000);
 };
 
 function initializeGame() {
@@ -137,6 +142,11 @@ function updateScoreDisplay() {
       element.style.visibility = 'hidden';
     }
   });
+};
+
+function updateTimerDisplay() {
+  const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
+  document.querySelector('.timer').textContent = elapsedSeconds + 's';
 };
 
 // Shuffle function from http://stackoverflow.com/a/2450976

@@ -83,7 +83,6 @@ function clickEventListener(event) {
       } else {
         console.log("no match");
         setTimeout(closeOpenCards, 1000);
-        cardsInTurn.length = 0;
       }
       turnsTaken++;
       updateTurnDisplay();
@@ -114,6 +113,7 @@ function closeOpenCards() {
   document.querySelectorAll('.open').forEach(function (element) {
     element.classList.remove('open', 'show');
   });
+  cardsInTurn.length = 0;
 };
 
 function showMatch() {

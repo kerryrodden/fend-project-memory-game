@@ -10,11 +10,8 @@ const cardIconNames = [
   "fa-bomb"
 ];
 
-// Create list with two cards for each icon, and shuffle it
-const cardIconClasses = shuffle(cardIconNames.concat(cardIconNames));
-
-// The total number of cards
-const cardCount = cardIconClasses.length;
+// The total number of cards = two for each icon
+const cardCount = cardIconNames.length * 2;
 
 // The number of cards that the user has matched correctly so far
 let cardsCorrect = 0;
@@ -24,26 +21,51 @@ const cardsInTurn = [];
 
 // The number of turns taken in this game
 let turnsTaken = 0;
-updateTurnDisplay();
 
-// The user's score for this game
-let score = 3;
-updateScoreDisplay();
+// The maximum score available
+const maxScore = 3;
 
-// Display the cards on the page
-const deck = document.querySelector('.deck');
-cardIconClasses.forEach(function (cardIconClass) {
-  let card = document.createElement('li');
-  card.classList.add('card');
-  let icon = document.createElement('i');
-  icon.classList.add('fa');
-  icon.classList.add(cardIconClass);
-  card.appendChild(icon);
-  deck.appendChild(card);
-});
+initializeGame();
 
-// Handle clicks and apply game logic (determine if open cards match)
-deck.addEventListener('click', clickEventListener);
+function createNewGame() {
+  const deck = document.querySelector('.deck');
+  // Create list with two cards for each icon, and shuffle it
+  const cardIconClasses = shuffle(cardIconNames.concat(cardIconNames));
+  // Display the cards on the page
+  cardIconClasses.forEach(function (cardIconClass) {
+    let card = document.createElement('li');
+    card.classList.add('card');
+    let icon = document.createElement('i');
+    icon.classList.add('fa');
+    icon.classList.add(cardIconClass);
+    card.appendChild(icon);
+    deck.appendChild(card);
+  });
+  cardsCorrect = 0;
+  cardsInTurn.length = 0;
+  turnsTaken = 0;
+  updateTurnDisplay();
+  updateScoreDisplay();
+};
+
+function initializeGame() {
+  createNewGame();
+  // Handle clicks and apply game logic (determine if open cards match)
+  const deck = document.querySelector('.deck');
+  deck.addEventListener('click', clickEventListener);
+  // Enable restart button
+  const restart = document.querySelector('.restart');
+  restart.addEventListener('click', restartGame);
+};
+
+function restartGame() {
+  // Remove all existing cards from the game board
+  const deck = document.querySelector('.deck');
+  deck.querySelectorAll('.card').forEach(function(card) {
+    deck.removeChild(card);
+  });
+  createNewGame();
+};
 
 function clickEventListener(event) {
   if (!event.target.classList.contains('card')) {
@@ -108,10 +130,9 @@ function updateTurnDisplay() {
 
 function updateScoreDisplay() {
   // Maximum score of 3 stars is available if you take <16 turns. Then 2 stars for <32, 1 star for 32+
-  score = Math.max(1, 3 - Math.floor(turnsTaken / cardCount));
-  console.log(turnsTaken, score);
+  let score = Math.max(1, maxScore - Math.floor(turnsTaken / cardCount));
   // Hide stars instead of removing them, so that the spacing remains consistent.
-  document.querySelectorAll('.fa-star').forEach(function(element, index) {
+  document.querySelectorAll('.fa-star').forEach(function (element, index) {
     if (index + 1 > score) {
       element.style.visibility = 'hidden';
     }

@@ -112,3 +112,48 @@ h1 {
 .score-panel .restart {
     cursor: pointer;
 }
+
+/*
+ * Styles for the Congratulations modal dialog
+ */
+
+.modal {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.hide {
+    display: none;
+}
+
+.overlay {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: gray;
+    opacity: 0.5;
+}
+
+.overlay.hide {
+    display: none;
+}
+
+.congratulations {
+    width: 300px;
+    max-width: 100%;
+    height: 300px;
+    max-height: 100%;
+    background-color: white;
+    opacity: 1;
+    text-align: center;
+    padding: 10px;
+}

@@ -13,24 +13,12 @@ const cardIconNames = [
 // The total number of cards = two for each icon
 const cardCount = cardIconNames.length * 2;
 
-// The number of cards that the user has matched correctly so far
-let cardsCorrect = 0;
-
-// The cards that the user has opened in this turn
-const cardsInTurn = [];
-
-// The number of turns taken in this game
-let turnsTaken = 0;
-
 // The maximum score available
 const maxScore = 3;
 
-// Start time of current game
-let startTime = new Date();
-
 initializeGame();
 
-function createNewGame() {
+function createNewGame(gameState) {
   const deck = document.querySelector('.deck');
   // Create list with two cards for each icon, and shuffle it
   const cardIconClasses = shuffle(cardIconNames.concat(cardIconNames));
@@ -44,61 +32,69 @@ function createNewGame() {
     card.appendChild(icon);
     deck.appendChild(card);
   });
-  cardsCorrect = 0;
-  cardsInTurn.length = 0;
-  turnsTaken = 0;
-  startTime = Date.now();
-  updateTurnDisplay();
-  updateScoreDisplay();
-  setInterval(updateTimerDisplay, 1000);
+  gameState.cardsCorrect = 0;
+  gameState.cardsInTurn.length = 0;
+  gameState.turnsTaken = 0;
+  clearInterval(gameState.intervalId);
+  gameState.intervalId = setInterval(updateTimerDisplay, 1000, Date.now());
+  updateTurnDisplay(gameState.turnsTaken);
+  updateScoreDisplay(gameState.turnsTaken);
+
 };
 
 function initializeGame() {
-  createNewGame();
+  const gameState = {
+    // The number of cards that the user has matched correctly so far
+    cardsCorrect: 0,
+    // The cards that the user has opened in this turn
+    cardsInTurn: [],
+    // The number of turns taken in this game
+    turnsTaken: 0,
+    // ID of timer for current game
+    intervalId: null
+  };
+  createNewGame(gameState);
   // Handle clicks and apply game logic (determine if open cards match)
   const deck = document.querySelector('.deck');
-  deck.addEventListener('click', clickEventListener);
+  deck.addEventListener('click', function(event) {
+    if (event.target.classList.contains('card')) {
+      handleCardClick(event.target, gameState);
+    }
+  });
   // Enable restart button
   const restart = document.querySelector('.restart');
-  restart.addEventListener('click', restartGame);
+  restart.addEventListener('click', function() {
+    restartGame(gameState);
+  });
 };
 
-function restartGame() {
+function restartGame(gameState) {
   // Remove all existing cards from the game board
   const deck = document.querySelector('.deck');
-  deck.querySelectorAll('.card').forEach(function(card) {
+  deck.querySelectorAll('.card').forEach(function (card) {
     deck.removeChild(card);
   });
-  createNewGame();
+  createNewGame(gameState);
 };
 
-function clickEventListener(event) {
-  if (!event.target.classList.contains('card')) {
-    return;
-  }
-  if (!cardIsOpen(event.target) && cardsInTurn.length < 2 && cardsCorrect < cardCount) {
-    openCard(event.target);
-    if (cardsInTurn.length === 2) {
-      if (cardsInTurn[0] === cardsInTurn[1]) {
-        console.log("match");
+function handleCardClick(cardElement, gameState) {
+  if (!cardIsOpen(cardElement) && gameState.cardsInTurn.length < 2 && gameState.cardsCorrect < cardCount) {
+    gameState.cardsInTurn.push(getCardName(cardElement));
+    displaySymbol(cardElement);
+    if (gameState.cardsInTurn.length === 2) {
+      if (gameState.cardsInTurn[0] === gameState.cardsInTurn[1]) {
         showMatch();
-        cardsCorrect += 2;
+        gameState.cardsCorrect += 2;
         // TODO: check if cardsCorrect === cardCount
-        cardsInTurn.length = 0;
+        gameState.cardsInTurn.length = 0;
       } else {
-        console.log("no match");
-        setTimeout(closeOpenCards, 1000);
+        setTimeout(closeOpenCards, 1000, gameState);
       }
-      turnsTaken++;
-      updateTurnDisplay();
-      updateScoreDisplay();
+      gameState.turnsTaken++;
+      updateTurnDisplay(gameState.turnsTaken);
+      updateScoreDisplay(gameState.turnsTaken);
     }
   }
-};
-
-function openCard(cardElement) {
-  cardsInTurn.push(getCardName(cardElement));
-  displaySymbol(cardElement);
 };
 
 function cardIsOpen(cardElement) {
@@ -114,11 +110,11 @@ function displaySymbol(cardElement) {
   cardElement.classList.add('open', 'show');
 };
 
-function closeOpenCards() {
+function closeOpenCards(gameState) {
   document.querySelectorAll('.open').forEach(function (element) {
     element.classList.remove('open', 'show');
   });
-  cardsInTurn.length = 0;
+  gameState.cardsInTurn.length = 0;
 };
 
 function showMatch() {
@@ -128,12 +124,12 @@ function showMatch() {
   });
 };
 
-function updateTurnDisplay() {
+function updateTurnDisplay(turnsTaken) {
   const turnString = turnsTaken === 1 ? ' Turn' : ' Turns';
   document.querySelector('.turns').textContent = turnsTaken + turnString;
 };
 
-function updateScoreDisplay() {
+function updateScoreDisplay(turnsTaken) {
   // Maximum score of 3 stars is available if you take <16 turns. Then 2 stars for <32, 1 star for 32+
   let score = Math.max(1, maxScore - Math.floor(turnsTaken / cardCount));
   // Hide stars instead of removing them, so that the spacing remains consistent.
@@ -144,7 +140,7 @@ function updateScoreDisplay() {
   });
 };
 
-function updateTimerDisplay() {
+function updateTimerDisplay(startTime) {
   const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
   document.querySelector('.timer').textContent = elapsedSeconds + 's';
 };

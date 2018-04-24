@@ -83,7 +83,7 @@ function handleCardClick(cardElement, gameState) {
     displaySymbol(cardElement);
     if (gameState.cardsInTurn.length === 2) {
       if (gameState.cardsInTurn[0] === gameState.cardsInTurn[1]) {
-        showMatch();
+        setTimeout(showMatch, 1000);
         gameState.cardsCorrect += 2;
         gameState.cardsInTurn.length = 0;
       } else {
@@ -107,12 +107,12 @@ function getCardName(cardElement) {
 };
 
 function displaySymbol(cardElement) {
-  cardElement.classList.add('open', 'show');
+  cardElement.classList.add('open');
 };
 
 function closeOpenCards(gameState) {
   document.querySelectorAll('.open').forEach(function (element) {
-    element.classList.remove('open', 'show');
+    element.classList.remove('open');
   });
   gameState.cardsInTurn.length = 0;
 };
@@ -120,7 +120,7 @@ function closeOpenCards(gameState) {
 function showMatch() {
   document.querySelectorAll('.open').forEach(function (element) {
     element.classList.add('match');
-    element.classList.remove('open', 'show');
+    element.classList.remove('open');
   });
 };
 
@@ -152,17 +152,21 @@ function updateTimerDisplay(startTime) {
 function checkForWinningState(gameState) {
   if (gameState.cardsCorrect === cardCount) {
     clearInterval(gameState.intervalId);
-    document.querySelector('.end-time').textContent = document.querySelector('.timer').textContent;
-    document.querySelector('.end-score').textContent = calculateScore(gameState.turnsTaken);
-    document.querySelector('.modal').classList.remove('hide');
-    document.querySelector('.overlay').classList.remove('hide');
-    document.querySelector('.play-again').addEventListener('click', function () {
-      document.querySelector('.modal').classList.add('hide');
-      document.querySelector('.overlay').classList.add('hide');
-      restartGame(gameState);
-    });
+    setTimeout(displayCongratulations, 1500, gameState);
   }
-}
+};
+
+function displayCongratulations(gameState) {
+  document.querySelector('.end-time').textContent = document.querySelector('.timer').textContent;
+  document.querySelector('.end-score').textContent = calculateScore(gameState.turnsTaken);
+  document.querySelector('.modal').classList.remove('hide');
+  document.querySelector('.overlay').classList.remove('hide');
+  document.querySelector('.play-again').addEventListener('click', function () {
+    document.querySelector('.modal').classList.add('hide');
+    document.querySelector('.overlay').classList.add('hide');
+    restartGame(gameState);
+  });
+};
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {

@@ -140,6 +140,8 @@ function updateScoreDisplay(turnsTaken) {
   document.querySelectorAll('.fa-star').forEach(function (element, index) {
     if (index + 1 > score) {
       element.style.visibility = 'hidden';
+    } else {
+      element.style.visibility = 'visible';
     }
   });
 };
@@ -152,7 +154,7 @@ function updateTimerDisplay(startTime) {
 function checkForWinningState(gameState) {
   if (gameState.cardsCorrect === cardCount) {
     clearInterval(gameState.intervalId);
-    setTimeout(displayCongratulations, 1500, gameState);
+    setTimeout(displayCongratulations, 2500, gameState);
   }
 };
 

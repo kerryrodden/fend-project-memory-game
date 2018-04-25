@@ -1,5 +1,5 @@
 // List of card icon names (from Font Awesome)
-const cardIconNames = [
+const CARD_ICON_NAMES = [
   "fa-diamond",
   "fa-paper-plane-o",
   "fa-anchor",
@@ -11,36 +11,14 @@ const cardIconNames = [
 ];
 
 // The total number of cards = two for each icon
-const cardCount = cardIconNames.length * 2;
+const CARD_COUNT = CARD_ICON_NAMES.length * 2;
 
 // The maximum score available
-const maxScore = 3;
+const MAX_SCORE = 3;
 
 initializeGame();
 
-function createNewGame(gameState) {
-  const deck = document.querySelector('.deck');
-  // Create list with two cards for each icon, and shuffle it
-  const cardIconClasses = shuffle(cardIconNames.concat(cardIconNames));
-  // Display the cards on the page
-  cardIconClasses.forEach(function (cardIconClass) {
-    let card = document.createElement('li');
-    card.classList.add('card');
-    let icon = document.createElement('i');
-    icon.classList.add('fa');
-    icon.classList.add(cardIconClass);
-    card.appendChild(icon);
-    deck.appendChild(card);
-  });
-  gameState.cardsCorrect = 0;
-  gameState.cardsInTurn.length = 0;
-  gameState.turnsTaken = 0;
-  gameState.intervalId = setInterval(updateTimerDisplay, 1000, Date.now());
-  updateTurnDisplay(gameState.turnsTaken);
-  updateScoreDisplay(gameState.turnsTaken);
-
-};
-
+// Set up game for the first time (when the page is loaded)
 function initializeGame() {
   const gameState = {
     // The number of cards that the user has matched correctly so far
@@ -67,6 +45,32 @@ function initializeGame() {
   });
 };
 
+// Set up for a new game (either for the first time, or after user has restarted)
+function createNewGame(gameState) {
+  const deck = document.querySelector('.deck');
+  // Create list with two cards for each icon, and shuffle it
+  const cardIconClasses = shuffle(CARD_ICON_NAMES.concat(CARD_ICON_NAMES));
+  // Display the cards on the page
+  cardIconClasses.forEach(function (cardIconClass) {
+    let card = document.createElement('li');
+    card.classList.add('card');
+    let icon = document.createElement('i');
+    icon.classList.add('fa');
+    icon.classList.add(cardIconClass);
+    card.appendChild(icon);
+    deck.appendChild(card);
+  });
+  // Reset game state and associated displays
+  gameState.cardsCorrect = 0;
+  gameState.cardsInTurn.length = 0;
+  gameState.turnsTaken = 0;
+  gameState.intervalId = setInterval(updateTimerDisplay, 1000, Date.now());
+  updateTurnDisplay(gameState.turnsTaken);
+  updateScoreDisplay(gameState.turnsTaken);
+
+};
+
+// Clean up previous game before starting a new one
 function restartGame(gameState) {
   // Remove all existing cards from the game board
   const deck = document.querySelector('.deck');
@@ -78,10 +82,14 @@ function restartGame(gameState) {
   createNewGame(gameState);
 };
 
+// Core game logic, after user clicks on a card
 function handleCardClick(cardElement, gameState) {
-  if (!cardIsOpen(cardElement) && gameState.cardsInTurn.length < 2 && gameState.cardsCorrect < cardCount) {
+  // Only enter if this card is not already open, there are 0 or 1 cards open, and the user has not already won
+  if (!cardIsOpen(cardElement) && gameState.cardsInTurn.length < 2 && gameState.cardsCorrect < CARD_COUNT) {
+    // Flip this card to its "open" state, and keep track of it
     gameState.cardsInTurn.push(getCardName(cardElement));
-    displaySymbol(cardElement);
+    openCard(cardElement);
+    // If this is the second card opened in the turn, check if the two cards match
     if (gameState.cardsInTurn.length === 2) {
       if (gameState.cardsInTurn[0] === gameState.cardsInTurn[1]) {
         setTimeout(showMatch, 1000);
@@ -98,19 +106,23 @@ function handleCardClick(cardElement, gameState) {
   }
 };
 
+// Helper function to check if a card is currently flipped to its open state
 function cardIsOpen(cardElement) {
   return cardElement.classList.contains('open') || cardElement.classList.contains('match');
 }
 
+// Helper function to return the name of the symbol on this card
 function getCardName(cardElement) {
-  // TODO: try to find a more robust way to do this
+  // TODO: is there a more robust way to do this?
   return cardElement.firstChild.classList.item(1);
 };
 
-function displaySymbol(cardElement) {
+// Helper function to flip a card to its open state
+function openCard(cardElement) {
   cardElement.classList.add('open');
 };
 
+// Close all cards that are currently open
 function closeOpenCards(gameState) {
   document.querySelectorAll('.open').forEach(function (element) {
     element.classList.remove('open');
@@ -118,6 +130,7 @@ function closeOpenCards(gameState) {
   gameState.cardsInTurn.length = 0;
 };
 
+// When two cards match, replace their 'open' class with the 'match' class
 function showMatch() {
   document.querySelectorAll('.open').forEach(function (element) {
     element.classList.add('match');
@@ -125,19 +138,22 @@ function showMatch() {
   });
 };
 
+// Update the scoreboard to show the current number of turns taken
 function updateTurnDisplay(turnsTaken) {
   const turnString = turnsTaken === 1 ? ' Turn' : ' Turns';
   document.querySelector('.turns').textContent = turnsTaken + turnString;
 };
 
+// Helper function to calculate the score, based on the number of turns
 function calculateScore(turnsTaken) {
   // Maximum score of 3 stars is available if you take <16 turns. Then 2 stars for <32, 1 star for 32+
-  return Math.max(1, maxScore - Math.floor(turnsTaken / cardCount));
+  return Math.max(1, MAX_SCORE - Math.floor(turnsTaken / CARD_COUNT));
 }
 
+// Update the scoreboard to show the current score (in stars)
 function updateScoreDisplay(turnsTaken) {
   let score = calculateScore(turnsTaken);
-  // Hide stars instead of removing them, so that the spacing remains consistent.
+  // Hide stars instead of removing them, so that the spacing remains consistent
   document.querySelectorAll('.fa-star').forEach(function (element, index) {
     if (index + 1 > score) {
       element.style.visibility = 'hidden';
@@ -147,18 +163,21 @@ function updateScoreDisplay(turnsTaken) {
   });
 };
 
+// Update the scoreboard to show how much time has elapsed since the start of the game
 function updateTimerDisplay(startTime) {
   const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
   document.querySelector('.timer').textContent = formatDuration(elapsedSeconds);
 };
 
+// Check whether all of the cards are now open, and if so, the user has won the game
 function checkForWinningState(gameState) {
-  if (gameState.cardsCorrect === cardCount) {
+  if (gameState.cardsCorrect === CARD_COUNT) {
     clearInterval(gameState.intervalId);
     setTimeout(displayCongratulations, 2500, gameState);
   }
 };
 
+// Show modal dialog to congratulate the user on winning the game, and let them play again
 function displayCongratulations(gameState) {
   document.querySelector('.end-time').textContent = document.querySelector('.timer').textContent;
   document.querySelector('.end-score').textContent = calculateScore(gameState.turnsTaken);

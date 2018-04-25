@@ -1,20 +1,13 @@
 # Memory Game Project
 
-## Table of Contents
-
-* [Instructions](#instructions)
-* [Contributing](#contributing)
+HTML, CSS, and JavaScript for a project from [Udacity's Front-End Developer nanodegree] (https://www.udacity.com/course/front-end-web-developer-nanodegree--nd001).
 
 ## Instructions
 
-The starter project has some HTML and CSS styling to display a static version of the Memory Game project. You'll need to convert this project from a static project to an interactive one. This will require modifying the HTML and CSS files, but primarily the JavaScript file.
+This is a simple card game to test memory, in the style of [Concentration](https://en.wikipedia.org/wiki/Concentration_(game)). In each turn, you can click on two cards to flip them over, and try to find the pairs of matching symbols. The fewer turns you take to complete the game, the higher your score will be.
 
-To get started, open `js/app.js` and start building out the app's functionality
-
-For specific, detailed instructions, look at the project instructions in the [Udacity Classroom](https://classroom.udacity.com/me).
+[Play the game](https://kerryrodden.github.io/fend-project-memory-game/)
 
 ## Contributing
 
-This repository is the starter code for _all_ Udacity students. Therefore, we most likely will not accept pull requests.
-
-For details, check out [CONTRIBUTING.md](CONTRIBUTING.md).
+This was a course project and was put onto Github for grading, so unfortunately I cannot accept contributions. Thank you!

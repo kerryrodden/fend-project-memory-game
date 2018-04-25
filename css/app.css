@@ -28,7 +28,8 @@ body {
     flex-direction: column;
 }
 
-h1 {
+h1,
+h2 {
     font-family: 'Bevan', sans-serif;
     font-weight: 400;
 }
@@ -61,7 +62,7 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 5px 2px 20px 0 rgba(46, 61, 73, 0.5);
+    box-shadow: 2px 2px 20px 0 rgba(46, 61, 73, 0.5);
     transform: rotateY(180deg);
     transform-style: preserve-3d;
     transition: transform 1s, background-color 1s;
@@ -146,7 +147,7 @@ h1 {
     position: fixed;
     top: 0;
     left: 0;
-    background-color: gray;
+    background-color: black;
     opacity: 0.5;
 }
 
@@ -162,5 +163,17 @@ h1 {
     background-color: white;
     opacity: 1;
     text-align: center;
-    padding: 10px;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 10px 10px 20px 0px rgba(0,0,0,0.75);
+}
+
+.play-again {
+    font: 1em 'Nunito', sans-serif;
+    margin-top: 1em;
+    padding: 5px 15px;
+    background: #e8eaf6;
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
 }

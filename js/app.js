@@ -87,7 +87,7 @@ function handleCardClick(cardElement, gameState) {
         gameState.cardsCorrect += 2;
         gameState.cardsInTurn.length = 0;
       } else {
-        setTimeout(closeOpenCards, 1000, gameState);
+        setTimeout(closeOpenCards, 1500, gameState);
       }
       gameState.turnsTaken++;
       updateTurnDisplay(gameState.turnsTaken);

@@ -60,15 +60,18 @@ function createNewGame(gameState) {
     card.appendChild(icon);
     deck.appendChild(card);
   });
-  // Reset game state and associated displays
+  resetGameState(gameState);
+  updateTurnDisplay(gameState);
+  updateScoreDisplay(gameState);
+};
+
+// Set state of game to the starting values
+function resetGameState(gameState) {
   gameState.cardsCorrect = 0;
   gameState.cardsInTurn.length = 0;
   gameState.turnsTaken = 0;
   gameState.intervalId = setInterval(updateTimerDisplay, 1000, Date.now());
-  updateTurnDisplay(gameState.turnsTaken);
-  updateScoreDisplay(gameState.turnsTaken);
-
-};
+}
 
 // Clean up previous game before starting a new one
 function restartGame(gameState) {
@@ -84,27 +87,38 @@ function restartGame(gameState) {
 
 // Core game logic, after user clicks on a card
 function handleCardClick(cardElement, gameState) {
-  // Only enter if this card is not already open, there are 0 or 1 cards open, and the user has not already won
-  if (!cardIsOpen(cardElement) && gameState.cardsInTurn.length < 2 && gameState.cardsCorrect < CARD_COUNT) {
+  // Only enter if this card is not already open, and there are 0 or 1 cards open
+  if (!cardIsOpen(cardElement) && countCardsInTurn(gameState) < 2) {
     // Flip this card to its "open" state, and keep track of it
-    gameState.cardsInTurn.push(getCardName(cardElement));
-    openCard(cardElement);
+    openCard(cardElement, gameState);
     // If this is the second card opened in the turn, check if the two cards match
-    if (gameState.cardsInTurn.length === 2) {
-      if (gameState.cardsInTurn[0] === gameState.cardsInTurn[1]) {
-        setTimeout(showMatch, 1000);
-        gameState.cardsCorrect += 2;
-        gameState.cardsInTurn.length = 0;
+    if (countCardsInTurn(gameState) === 2) {
+      if (cardsAreMatching(gameState)) {
+        setTimeout(handleMatch, 1000, gameState);
       } else {
         setTimeout(closeOpenCards, 1500, gameState);
       }
-      gameState.turnsTaken++;
-      updateTurnDisplay(gameState.turnsTaken);
-      updateScoreDisplay(gameState.turnsTaken);
-      checkForWinningState(gameState);
+      incrementTurnsTaken(gameState);
+      updateTurnDisplay(gameState);
+      updateScoreDisplay(gameState);
     }
   }
 };
+
+// Helper function to check how many cards have been opened in this turn
+function countCardsInTurn(gameState) {
+  return gameState.cardsInTurn.length;
+}
+
+// Helper function to determine if the two currently open cards are matching
+function cardsAreMatching(gameState) {
+  return gameState.cardsInTurn[0] === gameState.cardsInTurn[1];
+}
+
+// Helper function to increment the number of turns taken
+function incrementTurnsTaken(gameState) {
+  gameState.turnsTaken++;
+}
 
 // Helper function to check if a card is currently flipped to its open state
 function cardIsOpen(cardElement) {
@@ -118,8 +132,9 @@ function getCardName(cardElement) {
 };
 
 // Helper function to flip a card to its open state
-function openCard(cardElement) {
+function openCard(cardElement, gameState) {
   cardElement.classList.add('open');
+  gameState.cardsInTurn.push(getCardName(cardElement));
 };
 
 // Close all cards that are currently open
@@ -130,18 +145,22 @@ function closeOpenCards(gameState) {
   gameState.cardsInTurn.length = 0;
 };
 
-// When two cards match, replace their 'open' class with the 'match' class
-function showMatch() {
+// When two cards match, replace their 'open' class with the 'match' class.
+// Update the game state and check if this means the user has now won.
+function handleMatch(gameState) {
   document.querySelectorAll('.open').forEach(function (element) {
     element.classList.add('match');
     element.classList.remove('open');
   });
+  gameState.cardsCorrect += 2;
+  gameState.cardsInTurn.length = 0;
+  checkForWinningState(gameState);
 };
 
 // Update the scoreboard to show the current number of turns taken
-function updateTurnDisplay(turnsTaken) {
-  const turnString = turnsTaken === 1 ? ' Turn' : ' Turns';
-  document.querySelector('.turns').textContent = turnsTaken + turnString;
+function updateTurnDisplay(gameState) {
+  const turnString = gameState.turnsTaken === 1 ? ' Turn' : ' Turns';
+  document.querySelector('.turns').textContent = gameState.turnsTaken + turnString;
 };
 
 // Helper function to calculate the score, based on the number of turns
@@ -151,8 +170,8 @@ function calculateScore(turnsTaken) {
 }
 
 // Update the scoreboard to show the current score (in stars)
-function updateScoreDisplay(turnsTaken) {
-  let score = calculateScore(turnsTaken);
+function updateScoreDisplay(gameState) {
+  let score = calculateScore(gameState.turnsTaken);
   // Hide stars instead of removing them, so that the spacing remains consistent
   document.querySelectorAll('.fa-star').forEach(function (element, index) {
     if (index + 1 > score) {

@@ -114,7 +114,8 @@ h2 {
 }
 
 .score-panel .timer {
-    width: 4em;
+    width: 5em;
+    text-align: center;
 }
 
 .score-panel .restart {

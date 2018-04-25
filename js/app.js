@@ -35,7 +35,6 @@ function createNewGame(gameState) {
   gameState.cardsCorrect = 0;
   gameState.cardsInTurn.length = 0;
   gameState.turnsTaken = 0;
-  clearInterval(gameState.intervalId);
   gameState.intervalId = setInterval(updateTimerDisplay, 1000, Date.now());
   updateTurnDisplay(gameState.turnsTaken);
   updateScoreDisplay(gameState.turnsTaken);
@@ -74,6 +73,8 @@ function restartGame(gameState) {
   deck.querySelectorAll('.card').forEach(function (card) {
     deck.removeChild(card);
   });
+  clearInterval(gameState.intervalId);
+  updateTimerDisplay(Date.now());
   createNewGame(gameState);
 };
 
@@ -148,7 +149,7 @@ function updateScoreDisplay(turnsTaken) {
 
 function updateTimerDisplay(startTime) {
   const elapsedSeconds = Math.round((Date.now() - startTime) / 1000);
-  document.querySelector('.timer').textContent = elapsedSeconds + 's';
+  document.querySelector('.timer').textContent = formatDuration(elapsedSeconds);
 };
 
 function checkForWinningState(gameState) {
@@ -169,6 +170,18 @@ function displayCongratulations(gameState) {
     restartGame(gameState);
   });
 };
+
+// Function to format duration into a string, based on https://stackoverflow.com/a/40350003
+function formatDuration(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return [
+    h,
+    m > 9 ? m : (h ? '0' + m : m || '0'),
+    s > 9 ? s : '0' + s,
+  ].filter(a => a).join(':');
+}
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
